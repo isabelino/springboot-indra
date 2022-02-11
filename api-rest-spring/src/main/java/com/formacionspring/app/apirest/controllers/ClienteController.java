@@ -2,6 +2,7 @@ package com.formacionspring.app.apirest.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,7 +12,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.formacionspring.app.apirest.entity.Cliente;
+import com.formacionspring.app.apirest.entity.Region;
 import com.formacionspring.app.apirest.service.ClienteService;
 
 @RestController
@@ -131,6 +136,7 @@ public class ClienteController {
 			clienteActual.setEmail(cliente.getEmail());
 			clienteActual.setTelefono(cliente.getTelefono());
 			clienteActual.setCreatedAt(cliente.getCreatedAt());
+			clienteActual.setRegion(cliente.getRegion());
 			
 			servicio.save(clienteActual);
 			
@@ -163,8 +169,6 @@ public class ClienteController {
 	public ResponseEntity<?> deleteCliente(@PathVariable Long id) {
 		Cliente clienteBorrado= null;
 		Map<String,Object> response = new HashMap<>();
-		
-		
 		clienteBorrado=servicio.findById(id);
 		
 		if(clienteBorrado == null) {
@@ -174,9 +178,6 @@ public class ClienteController {
 		else {
 			
 			try {
-				
-				
-				
 				
 				String nombreFotoAnterior = clienteBorrado.getImagen();
 				
@@ -223,12 +224,16 @@ public class ClienteController {
 			Path rutaArchivo = Paths.get("uploads").resolve(nombreArchivo).toAbsolutePath();
 		
 			try {
+				
 				Files.copy(archivo.getInputStream(), rutaArchivo);
+				
 			} catch (IOException e) {
+				
 				response.put("mensaje","Error al subir la imagen del cliente");
 				response.put("error", e.getMessage().concat("_ ").concat(e.getCause().getMessage()));
 				
 				return new ResponseEntity<Map<String,Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+				
 			}
 		
 			String nombreFotoAnterior = cliente.getImagen();
@@ -244,9 +249,6 @@ public class ClienteController {
 				}
 			}
 			
-			
-			
-			
 			cliente.setImagen(nombreArchivo);
 			
 			servicio.save(cliente);
@@ -260,6 +262,36 @@ public class ClienteController {
 		}
 		
 		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.CREATED);
+	}
+	
+	@GetMapping("/clientes/uploads/img/{nombreImagen:.+}")
+	public ResponseEntity<Resource> verImagen(@PathVariable String nombreImagen){
+		
+		Path rutaArchivo = Paths.get("uploads").resolve(nombreImagen).toAbsolutePath();
+		
+		Resource recurso= null;
+		
+		try {
+			recurso = new UrlResource(rutaArchivo.toUri());
+			
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		if(!recurso.exists() && !recurso.isReadable()) {
+			throw new RuntimeException("Error no se puede cargar la imagen "+nombreImagen);
+		}
+		
+		HttpHeaders cabecera = new HttpHeaders();
+		cabecera.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\""+recurso.getFilename()+"\"");
+		
+		return new ResponseEntity<Resource>(recurso,cabecera,HttpStatus.OK);
+		
+	}
+	
+	@GetMapping("/clientes/regiones")
+	public List<Region> listaRegiones(){
+		return servicio.findAllRegiones();
 	}
 	
 	

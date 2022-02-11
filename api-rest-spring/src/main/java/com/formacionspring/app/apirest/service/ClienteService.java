@@ -3,6 +3,7 @@ package com.formacionspring.app.apirest.service;
 import java.util.List;
 
 import com.formacionspring.app.apirest.entity.Cliente;
+import com.formacionspring.app.apirest.entity.Region;
 
 public interface ClienteService {
 
@@ -14,5 +15,6 @@ public interface ClienteService {
 	
 	public void delete(Long id);
 	
+	public List<Region> findAllRegiones();
 
 }
