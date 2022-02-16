@@ -19,8 +19,8 @@ INSERT INTO clientes(region_id,nombre,apellido,email,telefono,create_at) VALUES(
 INSERT INTO clientes(region_id,nombre,apellido,email,telefono,create_at) VALUES(1,"Daniel","Gues","dg@email.com",4545445,"2022-02-11");
 
 
-INSERT INTO usuarios (username,password,enabled) VALUES ('rolando','',1);
-INSERT INTO usuarios (username,password,enabled) VALUES ('admin','',1);
+INSERT INTO usuarios (username,password,enabled) VALUES ('rolando','$2a$10$VTMecMi.QwIynlpyuBHAAenhz9Wg2fEk4VbaOlXn.2xKkCJTMf75u',1);
+INSERT INTO usuarios (username,password,enabled) VALUES ('admin','$2a$10$nSgo1TPH4IQRro7HkVqrBO.cNC1cXrW5Xyhs5u/NwkjeEUh9Bo65G',1);
 
 INSERT INTO roles (nombre) VALUES('ROLE_USER');
 INSERT INTO roles (nombre) VALUES('ROLE_ADMIN');
